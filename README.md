@@ -11,6 +11,10 @@ It was made as a personal utility to generate cards faster, but if it helps othe
 - Windows executable: `dist/PDCOMP_ID_Card_Template_Generator_v1.0.0.exe`
 - Source file: `gui_id_maker.py`
 
+## Application View
+
+![Application view](app_view.png)
+
 ## Sample Output
 
 ![Sample card output](sample_card.png)
