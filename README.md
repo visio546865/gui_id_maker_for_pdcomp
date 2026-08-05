@@ -73,6 +73,7 @@ You can also customize:
 
 - `gui_id_maker.py` - main application
 - `icon.ico` - project icon
+- `logo/` - optional base seals and logo images included with the project
 - `README.md` - documentation
 - `LICENSE` - usage restrictions
 
