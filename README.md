@@ -6,6 +6,15 @@ PDCOMP ID Card Template Generator is a Python desktop tool built to quickly crea
 
 It was made as a personal utility to generate cards faster, but if it helps other people build cards quickly, even better.
 
+## Quick Access
+
+- Windows executable: `dist/PDCOMP_ID_Card_Template_Generator_v1.0.0.exe`
+- Source file: `gui_id_maker.py`
+
+## Sample Output
+
+![Sample card output](sample_card.png)
+
 ## What This Tool Does
 
 This application lets you generate visual ID card templates through a simple GUI.
