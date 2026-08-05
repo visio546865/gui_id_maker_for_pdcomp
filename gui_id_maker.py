@@ -18,6 +18,8 @@ TRANSLATIONS = {
         "card_name_custom": "Nom de Carte (optionnel) :",
         "card_type": "Thème / Type de Carte :",
         "layout_style": "Style / Mise en Page (Zone Sûre) :",
+        "security_profile": "Profil Sécurité Graphique :",
+        "security_name": "Nom Technique Sécurité :",
         "language": "Langue du Document :",
         "custom_colors": "Personnaliser les couleurs (En-tête et Bande)",
         "header_col": "Couleur En-tête",
@@ -53,6 +55,8 @@ TRANSLATIONS = {
         "card_name_custom": "Card Name (optional):",
         "card_type": "Theme / Card Type:",
         "layout_style": "Style / Layout (Safe Zone):",
+        "security_profile": "Graphic Security Profile:",
+        "security_name": "Security Technical Name:",
         "language": "Document Language:",
         "custom_colors": "Customize colors (Header & Stripe)",
         "header_col": "Header Color",
@@ -87,6 +91,8 @@ TRANSLATIONS = {
         "card_name_custom": "Kartenname (optional):",
         "card_type": "Thema / Kartentyp:",
         "layout_style": "Stil / Layout (Sicherer Bereich):",
+        "security_profile": "Grafisches Sicherheitsprofil:",
+        "security_name": "Technischer Sicherheitsname:",
         "language": "Dokumentensprache:",
         "custom_colors": "Farben anpassen (Kopfzeile & Streifen)",
         "header_col": "Kopfzeilenfarbe",
@@ -121,6 +127,8 @@ TRANSLATIONS = {
         "card_name_custom": "Nombre de Tarjeta (opcional):",
         "card_type": "Tema / Tipo de Tarjeta:",
         "layout_style": "Estilo / Diseño (Zona Segura):",
+        "security_profile": "Perfil de Seguridad Gráfica:",
+        "security_name": "Nombre Técnico de Seguridad:",
         "language": "Idioma del Documento:",
         "custom_colors": "Personalizar colores (Encabezado y Banda)",
         "header_col": "Color Encabezado",
@@ -284,10 +292,38 @@ STATES_CONFIG = {
 
 DEFAULT_STATE = STATES_CONFIG["SAN ANDREAS"]
 
-def create_guilloche_pattern(width, height, color_primary, color_secondary=(150, 180, 220, 40), pattern_type="standard"):
+SECURITY_PROFILES = {
+    "Basic": {"density": 0.75, "alpha": 0.70, "rosette_centers": 1, "picto": 0.70, "tech_name": "BASIC-LINE V1", "art_style": "clean_lines"},
+    "Standard": {"density": 1.0, "alpha": 1.0, "rosette_centers": 2, "picto": 1.0, "tech_name": "GUILLOCHE MATRIX V1", "art_style": "abstract_rosette"},
+    "Advanced": {"density": 1.25, "alpha": 1.20, "rosette_centers": 3, "picto": 1.20, "tech_name": "ADV-ROSETTE GRID V2", "art_style": "terrain_contours"},
+    "Ultra": {"density": 1.45, "alpha": 1.35, "rosette_centers": 4, "picto": 1.35, "tech_name": "ULTRA-MICROTEXT V3", "art_style": "abstract_rosette"},
+    "Banknote": {"density": 1.35, "alpha": 1.25, "rosette_centers": 4, "picto": 1.10, "tech_name": "BANKNOTE GUILLOCHE X9", "art_style": "abstract_rosette"},
+    "Government High": {"density": 1.15, "alpha": 1.05, "rosette_centers": 3, "picto": 1.10, "tech_name": "GOV-SEAL LAYER PRIME", "art_style": "maritime_grid"},
+    "Minimal Clean": {"density": 0.85, "alpha": 0.80, "rosette_centers": 1, "picto": 0.60, "tech_name": "MIN-CLEAN SECURE 02", "art_style": "clean_lines"},
+    "Tactical": {"density": 1.10, "alpha": 1.15, "rosette_centers": 2, "picto": 0.95, "tech_name": "TACTICAL BADGE NET V4", "art_style": "terrain_contours"},
+    "Continental": {"density": 1.0, "alpha": 0.85, "rosette_centers": 2, "picto": 0.75, "tech_name": "CONTINENT SILHOUETTE L2", "art_style": "europe_silhouette"},
+    "Coastal": {"density": 0.95, "alpha": 0.82, "rosette_centers": 2, "picto": 0.72, "tech_name": "COASTLINE WAVEMAP K5", "art_style": "coastal_lines"},
+    "Agricultural": {"density": 0.92, "alpha": 0.80, "rosette_centers": 2, "picto": 0.70, "tech_name": "AGRO PARCEL GRID F3", "art_style": "agri_field_real"},
+    "Rosace Abstract": {"density": 1.05, "alpha": 0.90, "rosette_centers": 3, "picto": 0.78, "tech_name": "ROSACE FRACTAL R8", "art_style": "abstract_rosette"},
+    "Terrain Relief": {"density": 1.0, "alpha": 0.86, "rosette_centers": 2, "picto": 0.75, "tech_name": "RELIEF CONTOUR T4", "art_style": "terrain_contours"},
+    "Maritime": {"density": 0.95, "alpha": 0.84, "rosette_centers": 2, "picto": 0.74, "tech_name": "HARBOR GRID M6", "art_style": "boats_water"},
+    "Europe Silhouette": {"density": 0.95, "alpha": 0.82, "rosette_centers": 2, "picto": 0.70, "tech_name": "EUROPE WATERMARK E1", "art_style": "europe_silhouette"},
+    "USA Silhouette": {"density": 0.95, "alpha": 0.82, "rosette_centers": 2, "picto": 0.70, "tech_name": "USA WATERMARK U1", "art_style": "usa_silhouette"},
+    "Boats On Water": {"density": 0.95, "alpha": 0.82, "rosette_centers": 2, "picto": 0.72, "tech_name": "MARINE BOATLINE B2", "art_style": "boats_water"},
+    "Field Parcels": {"density": 0.92, "alpha": 0.80, "rosette_centers": 2, "picto": 0.70, "tech_name": "FARMLAND PARCEL P1", "art_style": "agri_field_real"}
+}
+
+def scale_alpha(color, factor):
+    r, g, b, a = color
+    scaled = max(0, min(255, int(a * factor)))
+    return (r, g, b, scaled)
+
+def create_guilloche_pattern(width, height, color_primary, color_secondary=(150, 180, 220, 40), pattern_type="standard", density=1.0, alpha_factor=1.0):
     overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
-    step = 16
+    step = max(6, int(16 / density))
+    color_primary = scale_alpha(color_primary, alpha_factor)
+    color_secondary = scale_alpha(color_secondary, alpha_factor)
     if pattern_type == "civil":
         for x in range(0, width + height, step):
             points = []
@@ -304,7 +340,7 @@ def create_guilloche_pattern(width, height, color_primary, color_secondary=(150,
                 points.append((offset_x, y))
             if len(points) > 1:
                 draw.line(points, fill=color_primary, width=1)
-    spacing = 30
+    spacing = max(12, int(30 / density))
     for i in range(-height, width + height, spacing):
         draw.line([(i, 0), (i + height, height)], fill=color_secondary, width=1)
         draw.line([(i + height, 0), (i, height)], fill=color_secondary, width=1)
@@ -322,18 +358,24 @@ def create_security_background_gradient(width, height, state_data):
         draw.line([(0, y), (width, y)], fill=(r, g, b, 255))
     return gradient
 
-def add_security_rosettes(width, height, state_data):
+def add_security_rosettes(width, height, state_data, density=1.0, alpha_factor=1.0, center_count=2):
     rosette_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(rosette_layer)
-    rosette_color = state_data["rosette_color"]
-    centers = [(width - 180, height - 150), (200, height - 120)]
+    rosette_color = scale_alpha(state_data["rosette_color"], alpha_factor)
+    centers_base = [
+        (width - 180, height - 150),
+        (200, height - 120),
+        (width // 2, height - 110),
+        (width - 320, height // 2 + 70)
+    ]
+    centers = centers_base[:max(1, min(len(centers_base), center_count))]
     for cx, cy in centers:
-        radius = 120
-        for r in range(10, radius, 8):
+        radius = int(120 * density)
+        for r in range(10, radius, max(4, int(8 / density))):
             draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], outline=rosette_color, width=1)
     return rosette_layer
 
-def add_security_pictograms(width, height, state_data):
+def add_security_pictograms(width, height, state_data, density=1.0, alpha_factor=1.0):
     picto_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(picto_layer)
     try:
@@ -341,17 +383,156 @@ def add_security_pictograms(width, height, state_data):
     except IOError:
         font_picto = ImageFont.load_default()
     symbols = state_data.get("symbols", ["🏛️", "★", "👣"])
-    rows = 8
-    cols = 16
+    rows = max(5, int(8 * density))
+    cols = max(10, int(16 * density))
     step_x = width // cols
     step_y = height // rows
+    picto_alpha = max(10, min(100, int(35 * alpha_factor)))
     for r in range(rows):
         for c in range(cols):
             x = c * step_x + (step_x // 2)
             y = r * step_y + (step_y // 2)
             symbol = symbols[(r + c) % len(symbols)]
-            draw.text((x, y), symbol, fill=(50, 50, 100, 35), font=font_picto, anchor="mm")
+            draw.text((x, y), symbol, fill=(50, 50, 100, picto_alpha), font=font_picto, anchor="mm")
     return picto_layer
+
+def add_center_safe_zone_overlay(width, height, max_alpha=92, radius_factor=0.86):
+    # Build a soft radial mask then upscale for a smooth "safe zone" fade.
+    small_w, small_h = 220, 150
+    mask_small = Image.new("L", (small_w, small_h), 0)
+    pix = mask_small.load()
+    cx, cy = small_w / 2.0, small_h / 2.0
+    max_dist = min(cx, cy) * max(0.4, min(1.0, radius_factor))
+
+    for y in range(small_h):
+        for x in range(small_w):
+            dx = (x - cx) / max_dist
+            dy = (y - cy) / max_dist
+            d2 = dx * dx + dy * dy
+            if d2 < 1.0:
+                # Smoother curve near edges to avoid visible ring boundaries.
+                alpha = int(max_alpha * ((1.0 - d2) ** 1.8))
+                pix[x, y] = max(0, min(255, alpha))
+
+    resample = Image.Resampling.BICUBIC if hasattr(Image, "Resampling") else Image.BICUBIC
+    mask = mask_small.resize((width, height), resample)
+
+    overlay = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+    overlay.putalpha(mask)
+    return overlay
+
+def add_security_thematic_layer(width, height, state_data, art_style="abstract_rosette", density=1.0, alpha_factor=1.0):
+    theme_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(theme_layer)
+    line_alpha = max(12, min(44, int(22 * alpha_factor)))
+    accent_alpha = max(16, min(56, int(30 * alpha_factor)))
+    base_primary = state_data["guilloche_color"]
+    base_secondary = state_data["rosette_color"]
+    primary = (base_primary[0], base_primary[1], base_primary[2], line_alpha)
+    secondary = (base_secondary[0], base_secondary[1], base_secondary[2], accent_alpha)
+
+    if art_style == "continent_silhouette":
+        # Soft map-like silhouette watermark in the left-center area.
+        main_land = [
+            (width * 0.20, height * 0.54), (width * 0.30, height * 0.44), (width * 0.43, height * 0.43),
+            (width * 0.51, height * 0.49), (width * 0.49, height * 0.61), (width * 0.36, height * 0.66),
+            (width * 0.25, height * 0.62)
+        ]
+        draw.polygon(main_land, fill=(primary[0], primary[1], primary[2], int(primary[3] * 0.45)), outline=secondary)
+    elif art_style == "europe_silhouette":
+        europe_poly = [
+            (width * 0.18, height * 0.48), (width * 0.24, height * 0.42), (width * 0.31, height * 0.40),
+            (width * 0.39, height * 0.42), (width * 0.43, height * 0.47), (width * 0.41, height * 0.53),
+            (width * 0.36, height * 0.57), (width * 0.30, height * 0.56), (width * 0.25, height * 0.60),
+            (width * 0.20, height * 0.57), (width * 0.18, height * 0.52)
+        ]
+        draw.polygon(europe_poly, fill=(primary[0], primary[1], primary[2], int(primary[3] * 0.45)), outline=secondary)
+        draw.ellipse([(width * 0.33, height * 0.35), (width * 0.37, height * 0.39)], fill=(primary[0], primary[1], primary[2], int(primary[3] * 0.35)))
+    elif art_style == "usa_silhouette":
+        usa_poly = [
+            (width * 0.16, height * 0.56), (width * 0.22, height * 0.50), (width * 0.31, height * 0.49),
+            (width * 0.42, height * 0.50), (width * 0.50, height * 0.55), (width * 0.54, height * 0.60),
+            (width * 0.47, height * 0.64), (width * 0.36, height * 0.65), (width * 0.27, height * 0.62),
+            (width * 0.19, height * 0.61)
+        ]
+        draw.polygon(usa_poly, fill=(primary[0], primary[1], primary[2], int(primary[3] * 0.45)), outline=secondary)
+        draw.ellipse([(width * 0.56, height * 0.60), (width * 0.60, height * 0.64)], fill=(primary[0], primary[1], primary[2], int(primary[3] * 0.35)))
+    elif art_style == "coastal_lines":
+        coast_step = max(14, int(30 / density))
+        for base_y in range(int(height * 0.34), int(height * 0.78), coast_step):
+            points = []
+            for x in range(0, width, 8):
+                y = base_y + int(8 * math.sin(x / 88.0) + 4 * math.cos(x / 37.0))
+                points.append((x, y))
+            if len(points) > 1:
+                draw.line(points, fill=primary, width=1)
+        boat = [(width * 0.64, height * 0.58), (width * 0.72, height * 0.58), (width * 0.69, height * 0.62), (width * 0.61, height * 0.62)]
+        draw.polygon(boat, outline=secondary, fill=(secondary[0], secondary[1], secondary[2], int(secondary[3] * 0.35)))
+    elif art_style == "agri_parcels":
+        grid_x = max(58, int(120 / density))
+        grid_y = max(46, int(96 / density))
+        for x in range(int(width * 0.12), int(width * 0.88), grid_x):
+            for y in range(int(height * 0.30), int(height * 0.82), grid_y):
+                draw.rectangle([(x, y), (x + grid_x - 10, y + grid_y - 10)], outline=primary, width=1)
+    elif art_style == "agri_field_real":
+        horizon = int(height * 0.47)
+        center_x = int(width * 0.52)
+        for i in range(1, 12):
+            x_off = int((width * 0.43) * (i / 12.0))
+            draw.line([(center_x, horizon), (center_x - x_off, height)], fill=primary, width=1)
+            draw.line([(center_x, horizon), (center_x + x_off, height)], fill=primary, width=1)
+        for y in range(horizon + 24, height, 22):
+            draw.line([(center_x - int((y - horizon) * 1.15), y), (center_x + int((y - horizon) * 1.15), y)], fill=secondary, width=1)
+        barn = [(width * 0.73, height * 0.52), (width * 0.77, height * 0.49), (width * 0.81, height * 0.52), (width * 0.81, height * 0.57), (width * 0.73, height * 0.57)]
+        draw.polygon(barn, outline=secondary, fill=(secondary[0], secondary[1], secondary[2], int(secondary[3] * 0.30)))
+    elif art_style == "terrain_contours":
+        ring_count = max(5, int(10 * density))
+        for i in range(ring_count):
+            offset = i * 14
+            contour = []
+            for x in range(int(width * 0.05), int(width * 0.95), 9):
+                y = int(height * 0.56 + 28 * math.sin((x + offset) / 120.0) + 10 * math.cos((x - offset) / 63.0) + (i - ring_count / 2) * 9)
+                contour.append((x, y))
+            draw.line(contour, fill=primary if i % 2 == 0 else secondary, width=1)
+    elif art_style == "maritime_grid":
+        cx, cy = int(width * 0.80), int(height * 0.70)
+        for r in range(45, int(185 * density), max(18, int(34 / density))):
+            draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], outline=primary, width=1)
+        for a in range(0, 180, 18):
+            rad = math.radians(a)
+            x2 = cx + int(190 * math.cos(rad))
+            y2 = cy - int(190 * math.sin(rad))
+            draw.line([(cx, cy), (x2, y2)], fill=secondary, width=1)
+    elif art_style == "boats_water":
+        for base_y in range(int(height * 0.52), int(height * 0.84), 20):
+            wave = []
+            for x in range(int(width * 0.45), width, 8):
+                y = base_y + int(5 * math.sin(x / 55.0))
+                wave.append((x, y))
+            draw.line(wave, fill=primary, width=1)
+        boats = [
+            [(width * 0.67, height * 0.58), (width * 0.76, height * 0.58), (width * 0.73, height * 0.62), (width * 0.64, height * 0.62)],
+            [(width * 0.79, height * 0.66), (width * 0.86, height * 0.66), (width * 0.84, height * 0.69), (width * 0.77, height * 0.69)]
+        ]
+        for hull in boats:
+            draw.polygon(hull, outline=secondary, fill=(secondary[0], secondary[1], secondary[2], int(secondary[3] * 0.35)))
+        draw.line([(width * 0.72, height * 0.58), (width * 0.72, height * 0.52)], fill=secondary, width=1)
+        draw.polygon([(width * 0.72, height * 0.52), (width * 0.75, height * 0.55), (width * 0.72, height * 0.55)], fill=(secondary[0], secondary[1], secondary[2], int(secondary[3] * 0.40)))
+    elif art_style == "abstract_rosette":
+        centers = [(int(width * 0.80), int(height * 0.70))]
+        for cx, cy in centers:
+            for r in range(28, int(135 * density), max(12, int(22 / density))):
+                draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], outline=primary, width=1)
+            for a in range(0, 360, 24):
+                rad = math.radians(a)
+                x2 = cx + int(132 * math.cos(rad))
+                y2 = cy + int(132 * math.sin(rad))
+                draw.line([(cx, cy), (x2, y2)], fill=secondary, width=1)
+    else:
+        for i in range(-height, width, 36):
+            draw.line([(i, 0), (i + height, height)], fill=primary, width=1)
+
+    return theme_layer.filter(ImageFilter.GaussianBlur(0.9))
 
 def add_flag_badge(card, width, height, flag_type="USA", position="top_right"):
     flag_w, flag_h = 90, 55
@@ -606,9 +787,10 @@ def add_realistic_plastic_effects(image, radius=35):
     final_image = Image.alpha_composite(image, border_overlay)
     return final_image
 
-def generate_id_card(card_type, state_name, logo_path, output_filename, custom_colors=None, layout_style="standard", lang="EN", custom_card_name=None, custom_flag_type=None):
+def generate_id_card(card_type, state_name, logo_path, output_filename, custom_colors=None, layout_style="standard", lang="EN", custom_card_name=None, custom_flag_type=None, security_profile="Standard", security_label=None):
     width, height = 1067, 712
     state_data = STATES_CONFIG.get(state_name.upper(), DEFAULT_STATE).copy()
+    security_cfg = SECURITY_PROFILES.get(security_profile, SECURITY_PROFILES["Standard"])
     
     if custom_colors:
         if custom_colors.get("header"):
@@ -619,14 +801,47 @@ def generate_id_card(card_type, state_name, logo_path, output_filename, custom_c
     flag_type = custom_flag_type if custom_flag_type else state_data.get("flag", "USA")
     
     card = create_security_background_gradient(width, height, state_data)
-    guilloche = create_guilloche_pattern(width, height, color_primary=state_data["guilloche_color"], pattern_type=card_type)
+    guilloche = create_guilloche_pattern(
+        width,
+        height,
+        color_primary=state_data["guilloche_color"],
+        pattern_type=card_type,
+        density=security_cfg["density"],
+        alpha_factor=security_cfg["alpha"]
+    )
     card = Image.alpha_composite(card, guilloche)
     
-    rosettes = add_security_rosettes(width, height, state_data)
+    rosettes = add_security_rosettes(
+        width,
+        height,
+        state_data,
+        density=security_cfg["density"],
+        alpha_factor=security_cfg["alpha"],
+        center_count=security_cfg["rosette_centers"]
+    )
     card = Image.alpha_composite(card, rosettes)
     
-    picto_layer = add_security_pictograms(width, height, state_data)
+    picto_layer = add_security_pictograms(
+        width,
+        height,
+        state_data,
+        density=security_cfg["density"],
+        alpha_factor=security_cfg["picto"]
+    )
     card = Image.alpha_composite(card, picto_layer)
+
+    theme_layer = add_security_thematic_layer(
+        width,
+        height,
+        state_data,
+        art_style=security_cfg.get("art_style", "abstract_rosette"),
+        density=security_cfg["density"],
+        alpha_factor=security_cfg["alpha"]
+    )
+    card = Image.alpha_composite(card, theme_layer)
+
+    safe_zone = add_center_safe_zone_overlay(width, height)
+    card = Image.alpha_composite(card, safe_zone)
     
     draw = ImageDraw.Draw(card)
     
@@ -715,6 +930,14 @@ def generate_id_card(card_type, state_name, logo_path, output_filename, custom_c
 
     add_flag_badge(card, width, height, flag_type=flag_type, position=flag_pos)
 
+    if security_label:
+        try:
+            sec_font = ImageFont.truetype("arial.ttf", 16)
+        except IOError:
+            sec_font = ImageFont.load_default()
+        security_text = f"SECURITY: {security_label.strip()}"
+        draw.text((30, height - 28), security_text, fill=(35, 35, 35, 180), font=sec_font)
+
     if logo_path and os.path.exists(logo_path):
         try:
             logo = Image.open(logo_path).convert("RGBA")
@@ -722,7 +945,7 @@ def generate_id_card(card_type, state_name, logo_path, output_filename, custom_c
             alpha = logo.split()[3]
             alpha = alpha.point(lambda p: int(p * 0.28))
             logo.putalpha(alpha)
-            card.paste(logo, (width // 2 - 160, height // 2 - 160), logo)
+            card.paste(logo, (width // 2 - 40, height // 2 - 160), logo)
         except Exception as e:
             print(f"Error loading logo: {e}")
 
@@ -772,7 +995,7 @@ def create_win98_button(parent, text, command, width=None):
 class IDCardAppWin98:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("570x710")
+        self.root.geometry("570x760")
         self.root.resizable(False, False)
         self.root.config(bg="#a8d8ff")
 
@@ -781,6 +1004,8 @@ class IDCardAppWin98:
         self.state_var = tk.StringVar(value=list(STATES_CONFIG.keys())[0])
         self.flag_override_var = tk.StringVar(value="AUTO")
         self.card_name_var = tk.StringVar(value="")
+        self.security_profile_display_var = tk.StringVar(value="Profile 02")
+        self.security_name_var = tk.StringVar(value=SECURITY_PROFILES["Standard"]["tech_name"])
         
         self.types_map = {
             "Civil Card / Civil Status": "civil",
@@ -800,6 +1025,30 @@ class IDCardAppWin98:
             "Diplomatic Style / Centered"
         ]
         self.layout_var = tk.StringVar(value=self.layouts_list[0])
+        self.security_profile_options = [
+            ("Profile 01", "Basic"),
+            ("Profile 02", "Standard"),
+            ("Profile 03", "Advanced"),
+            ("Profile 04", "Ultra"),
+            ("Profile 05", "Banknote"),
+            ("Profile 06", "Government High"),
+            ("Profile 07", "Minimal Clean"),
+            ("Profile 08", "Tactical"),
+            ("Profile 09", "Continental"),
+            ("Profile 10", "Coastal"),
+            ("Profile 11", "Agricultural"),
+            ("Profile 12", "Rosace Abstract"),
+            ("Profile 13", "Terrain Relief"),
+            ("Profile 14", "Maritime"),
+            ("Profile 15", "Europe Silhouette"),
+            ("Profile 16", "USA Silhouette"),
+            ("Profile 17", "Boats On Water"),
+            ("Profile 18", "Field Parcels")
+        ]
+        self.security_profiles = [label for label, _ in self.security_profile_options]
+        self.profile_display_to_key = {label: key for label, key in self.security_profile_options}
+        self.profile_key_to_display = {key: label for label, key in self.security_profile_options}
+        self.profile_default_labels = {k: v.get("tech_name", "") for k, v in SECURITY_PROFILES.items()}
         self.flag_values = [
             "AUTO", "USA", "Canada", "Mexico", "Cuba", "France", "United Kingdom",
             "Germany", "Allemagne", "Italy", "Spain", "Portugal", "Belgium", "Netherlands", "Ireland",
@@ -819,8 +1068,10 @@ class IDCardAppWin98:
         self.widgets_to_update = {}
         self.preview_window = None
         self.preview_image_ref = None
+        self._last_profile_applied = self.security_profile_display_var.get()
 
         self.create_widgets()
+        self.apply_security_profile(force=True)
         self.update_ui_texts()
 
     def create_widgets(self):
@@ -879,6 +1130,13 @@ class IDCardAppWin98:
         self.layout_combo = ttk.Combobox(form_inner, textvariable=self.layout_var, values=self.layouts_list, state="readonly", width=32)
         add_field(4, "layout_style", self.layout_combo)
 
+        self.security_profile_combo = ttk.Combobox(form_inner, textvariable=self.security_profile_display_var, values=self.security_profiles, state="readonly", width=32)
+        add_field(5, "security_profile", self.security_profile_combo)
+        self.security_profile_combo.bind("<<ComboboxSelected>>", lambda e: self.apply_security_profile())
+
+        self.security_name_entry = tk.Entry(form_inner, textvariable=self.security_name_var, bg="white", fg="black", font=("MS Sans Serif", 8), bd=2, relief="sunken")
+        add_field(6, "security_name", self.security_name_entry)
+
         self.custom_check = tk.Checkbutton(
             form_inner, 
             variable=self.use_custom_colors, 
@@ -889,11 +1147,11 @@ class IDCardAppWin98:
             selectcolor="#c0c0c0",
             activebackground="#c0c0c0"
         )
-        self.custom_check.grid(row=5, column=0, columnspan=2, sticky="w", pady=(4, 4))
+        self.custom_check.grid(row=7, column=0, columnspan=2, sticky="w", pady=(4, 4))
         self.widgets_to_update["custom_colors"] = self.custom_check
 
         self.color_frame = tk.Frame(form_inner, bg="#c0c0c0")
-        self.color_frame.grid(row=6, column=0, columnspan=2, sticky="ew", pady=2)
+        self.color_frame.grid(row=8, column=0, columnspan=2, sticky="ew", pady=2)
         
         self.btn_header_col = create_win98_button(self.color_frame, "", lambda: self.pick_color('header'), width=18)
         self.btn_header_col.pack(side="left", padx=(0, 5))
@@ -908,7 +1166,7 @@ class IDCardAppWin98:
         self.toggle_color_selectors()
 
         logo_container = tk.Frame(form_inner, bg="#c0c0c0")
-        logo_container.grid(row=7, column=0, columnspan=2, sticky="ew", pady=6)
+        logo_container.grid(row=9, column=0, columnspan=2, sticky="ew", pady=6)
         
         self.lbl_logo = tk.Label(logo_container, bg="#c0c0c0", fg="black", font=("MS Sans Serif", 9, "bold"))
         self.lbl_logo.pack(side="left", anchor="w")
@@ -990,6 +1248,18 @@ class IDCardAppWin98:
                 else:
                     widget.config(text=t[key])
 
+    def apply_security_profile(self, force=False):
+        current_profile_display = self.security_profile_display_var.get()
+        current_profile_key = self.profile_display_to_key.get(current_profile_display, "Standard")
+        prev_profile_display = self._last_profile_applied
+        prev_profile_key = self.profile_display_to_key.get(prev_profile_display, "Standard")
+        prev_default = self.profile_default_labels.get(prev_profile_key, "")
+        current_label = self.security_name_var.get().strip()
+        # Auto-refresh technical label when switching profile unless user typed a custom one.
+        if force or not current_label or current_label == prev_default:
+            self.security_name_var.set(self.profile_default_labels.get(current_profile_key, ""))
+        self._last_profile_applied = current_profile_display
+
     def toggle_color_selectors(self):
         state = "normal" if self.use_custom_colors.get() else "disabled"
         self.btn_header_col.config(state=state)
@@ -1047,7 +1317,9 @@ class IDCardAppWin98:
             "layout_style": layout_style,
             "lang": self.lang_var.get(),
             "custom_card_name": self.card_name_var.get(),
-            "custom_flag_type": custom_flag_type
+            "custom_flag_type": custom_flag_type,
+            "security_profile": self.profile_display_to_key.get(self.security_profile_display_var.get(), "Standard"),
+            "security_label": self.security_name_var.get()
         }
 
     def preview(self):
