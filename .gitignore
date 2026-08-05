@@ -1,5 +1,8 @@
 build/
 dist/
+!dist/
+dist/*
+!dist/PDCOMP_ID_Card_Template_Generator_v1.0.0.exe
 __pycache__/
 *.pyc
 pyinstaller_build.log
