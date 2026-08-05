@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['C:\\Users\\User\\Desktop\\gui\\gui_id_maker.py'],
+    ['gui_id_maker.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['C:\\Users\\User\\Desktop\\gui\\icon.ico'],
+    icon=['icon.ico'],
 )
