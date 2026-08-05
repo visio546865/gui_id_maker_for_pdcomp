@@ -1,0 +1,22 @@
+PDCOMP ID Card Template Generator
+Copyright (c) 2026
+Author: Aniki - Punch prod
+All rights reserved.
+
+Permission is granted for:
+- personal use
+- private use
+- modification for personal use
+
+The following actions are prohibited without prior written permission from the author:
+- selling this project
+- reselling this project, whether modified or unmodified
+- redistributing this project as your own work
+- republishing this project on another platform
+- including this project in a paid pack or bundle
+- removing author credit if it is present
+
+This project is provided as-is, without warranty of any kind.
+The author cannot be held responsible for any damage, loss, or misuse resulting from this software.
+
+If you want special permission for redistribution, publication, or commercial use, you must obtain explicit approval from the author.
