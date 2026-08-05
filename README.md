@@ -44,24 +44,34 @@ You can also customize:
 
 ## Requirements
 
+### Run from Python source
+
 - Windows
 - Python 3
 - Pillow
+
+### Run from Windows .exe
+
+- Windows
+- No Python installation required
+- No Pillow installation required
 
 ## Project Files
 
 - `gui_id_maker.py` - main application
 - `icon.ico` - project icon
 - `README.md` - documentation
-- `LICENSE.txt` - usage restrictions
+- `LICENSE` - usage restrictions
 
 ## Installation Tutorial
 
-### 1. Install Python
+### Run from Python source
+
+#### 1. Install Python
 
 Install Python 3 on your machine if it is not already installed.
 
-### 2. Install the dependency
+#### 2. Install the dependency
 
 Open a terminal in the project folder and run:
 
@@ -69,13 +79,27 @@ Open a terminal in the project folder and run:
 pip install pillow
 ```
 
-### 3. Start the application
+#### 3. Start the application
 
 Run the script with:
 
 ```bash
 python gui_id_maker.py
 ```
+
+### Run from Windows .exe
+
+If you use the packaged Windows executable, you do not need to install Python or Pillow.
+
+Launch:
+
+```text
+dist/PDCOMP_ID_Card_Template_Generator_v1.0.0.exe
+```
+
+### No dependencies required for the .exe
+
+The `.exe` version is packaged with PyInstaller and is intended to run as a standalone application on Windows.
 
 ## How To Use
 
@@ -169,4 +193,4 @@ The generated executable will be created in the `dist` folder.
 
 This project is not allowed to be sold or redistributed without permission.
 
-See [LICENSE.txt](LICENSE.txt) for the full usage terms.
+See [LICENSE](LICENSE) for the full usage terms.
